@@ -30,7 +30,7 @@ router.post('/verify-otp', async (req, res) => {
     if (!phone || !code) return res.status(400).json({ message: 'Phone and code required' });
 
     const result = await pool.query(
-      'SELECT * FROM otp_codes WHERE phone=$1 AND code=$2 AND used=false AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1',
+      'SELECT * FROM otp_codes WHERE phone=$1 AND code=$2 AND used=false AND expires_at > NOW() ORDER BY expires_at DESC LIMIT 1',
       [phone, code]
     );
 
