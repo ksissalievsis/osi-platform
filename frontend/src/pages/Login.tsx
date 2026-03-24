@@ -14,7 +14,8 @@ export default function Login() {
   const sendOtp = async () => {
     setLoading(true); setError('')
     try {
-      await authApi.sendOtp(phone)
+      const { data } = await authApi.sendOtp(phone)
+      if (data.code) setCode(data.code)
       setStep('code')
     } catch { setError('Ошибка отправки кода') }
     setLoading(false)
