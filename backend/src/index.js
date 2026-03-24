@@ -4,8 +4,23 @@ const cors = require('cors');
 const helmet = require('helmet');
 const http = require('http');
 const { Server } = require('socket.io');
+const fs = require('fs');
+const path = require('path');
+const pool = require('./config/db');
 
 const app = express();
+
+// Run DB schema on startup
+async function initDB() {
+  try {
+    const schema = fs.readFileSync(path.join(__dirname, 'config/schema.sql'), 'utf8');
+    await pool.query(schema);
+    console.log('DB schema initialized');
+  } catch (err) {
+    console.error('DB init error:', err.message);
+  }
+}
+initDB();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
