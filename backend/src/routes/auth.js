@@ -19,7 +19,8 @@ router.post('/send-otp', async (req, res) => {
   // TODO: integrate SMS provider (Twilio/etc)
   console.log(`OTP for ${phone}: ${code}`);
 
-  res.json({ message: 'OTP sent', ...(process.env.NODE_ENV !== 'production' && { code }) });
+  // TODO: remove code from response after SMS integration
+  res.json({ message: 'OTP sent', code });
 });
 
 // Verify OTP
