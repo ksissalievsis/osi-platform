@@ -25,34 +25,40 @@ router.post('/send-otp', async (req, res) => {
 
 // Verify OTP
 router.post('/verify-otp', async (req, res) => {
-  const { phone, code } = req.body;
+  try {
+    const { phone, code } = req.body;
+    if (!phone || !code) return res.status(400).json({ message: 'Phone and code required' });
 
-  const result = await pool.query(
-    'SELECT * FROM otp_codes WHERE phone=$1 AND code=$2 AND used=false AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1',
-    [phone, code]
-  );
-
-  if (!result.rows.length) return res.status(400).json({ message: 'Invalid or expired code' });
-
-  await pool.query('UPDATE otp_codes SET used=true WHERE id=$1', [result.rows[0].id]);
-
-  // Get or create user
-  let user = await pool.query('SELECT * FROM users WHERE phone=$1', [phone]);
-  if (!user.rows.length) {
-    const newUser = await pool.query(
-      'INSERT INTO users (id, phone) VALUES ($1, $2) RETURNING *',
-      [uuidv4(), phone]
+    const result = await pool.query(
+      'SELECT * FROM otp_codes WHERE phone=$1 AND code=$2 AND used=false AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1',
+      [phone, code]
     );
-    user = newUser;
+
+    if (!result.rows.length) return res.status(400).json({ message: 'Invalid or expired code' });
+
+    await pool.query('UPDATE otp_codes SET used=true WHERE id=$1', [result.rows[0].id]);
+
+    // Get or create user
+    let userResult = await pool.query('SELECT * FROM users WHERE phone=$1', [phone]);
+    if (!userResult.rows.length) {
+      userResult = await pool.query(
+        'INSERT INTO users (id, phone) VALUES ($1, $2) RETURNING *',
+        [uuidv4(), phone]
+      );
+    }
+
+    const user = userResult.rows[0];
+    const token = jwt.sign(
+      { id: user.id, role: user.role, phone },
+      process.env.JWT_SECRET || 'fallback_secret',
+      { expiresIn: '30d' }
+    );
+
+    res.json({ token, user });
+  } catch (err) {
+    console.error('verify-otp error:', err.message);
+    res.status(500).json({ message: 'Server error', detail: err.message });
   }
-
-  const token = jwt.sign(
-    { id: user.rows[0].id, role: user.rows[0].role, phone },
-    process.env.JWT_SECRET,
-    { expiresIn: '30d' }
-  );
-
-  res.json({ token, user: user.rows[0] });
 });
 
 module.exports = router;
