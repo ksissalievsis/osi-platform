@@ -73,7 +73,7 @@ export default function Dashboard() {
               <Link key={cat.id} to={`/requests/new?category=${cat.id}`}
                 className="bg-white border border-gray-200 rounded-xl p-3 text-center hover:border-blue-300 hover:shadow-sm transition">
                 <div className="text-2xl mb-1">
-                  {{ elevator: '🛗', intercom: '📱', plumbing: '🔧', repair: '🔨', cleaning: '🧹', outdoor: '🌿' }[cat.icon] || '📋'}
+                  {({'elevator': '🛗', 'intercom': '📱', 'plumbing': '🔧', 'repair': '🔨', 'cleaning': '🧹', 'outdoor': '🌿'} as Record<string, string>)[cat.icon] || '📋'}
                 </div>
                 <div className="text-xs text-gray-600">{lang === 'ru' ? cat.name_ru : cat.name_kz}</div>
               </Link>

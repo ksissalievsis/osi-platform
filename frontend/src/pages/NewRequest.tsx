@@ -42,7 +42,7 @@ export default function NewRequest() {
               <button key={cat.id} onClick={() => setForm(f => ({ ...f, category_id: cat.id }))}
                 className={`p-3 rounded-xl border text-center transition
                   ${form.category_id === cat.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                <div className="text-xl">{{ elevator: '🛗', intercom: '📱', plumbing: '🔧', repair: '🔨', cleaning: '🧹', outdoor: '🌿' }[cat.icon] || '📋'}</div>
+                <div className="text-xl">{({'elevator': '🛗', 'intercom': '📱', 'plumbing': '🔧', 'repair': '🔨', 'cleaning': '🧹', 'outdoor': '🌿'} as Record<string, string>)[cat.icon] || '📋'}</div>
                 <div className="text-xs mt-1 text-gray-600">{lang === 'ru' ? cat.name_ru : cat.name_kz}</div>
               </button>
             ))}
